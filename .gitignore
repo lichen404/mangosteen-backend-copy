@@ -24,6 +24,8 @@
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
-
+/tmp/deploy_cache/*
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+/vendor/cache
+/config/credentials/production.key
