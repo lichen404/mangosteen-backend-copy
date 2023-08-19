@@ -8,7 +8,7 @@ class Api::V1::ItemsController < ApplicationController
     render json: { resources: items, pager: {
              page: params[:page] || 1,
              per_page: Item.default_per_page,
-             count: Item.count,
+             count: Item.where(user_id: current_user_id).count,
            } }
   end
 
@@ -17,7 +17,7 @@ class Api::V1::ItemsController < ApplicationController
     if item.save
       render json: { resource: item }
     else
-      render json: { errors: item.errors }
+      render json: { errors: item.errors },status: 422
     end
   end
 end
