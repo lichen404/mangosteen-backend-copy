@@ -4,8 +4,9 @@ class Item < ApplicationRecord
   validates :kind, presence: true
   validates :happen_at, presence: true
   validates :tags_id, presence: true
-
+  validates :user_id, presence: true
   validate :check_tags_id_belong_to_user
+  belongs_to :user
 
   def check_tags_id_belong_to_user
     all_tag_ids = Tag.where(user_id: self.user_id).map(&:id)

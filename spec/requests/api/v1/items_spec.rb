@@ -3,10 +3,10 @@ require "rails_helper"
 RSpec.describe "Items", type: :request do
   describe "获取账目" do
     it "分页，未登录" do
-      user1 = User.create email: "1@qq.com"
-      user2 = User.create email: "2@qq.com"
-      11.times { Item.create amount: 100, user_id: user1.id }
-      11.times { Item.create amount: 100, user_id: user2.id }
+      user1 = create :user, email: "1@qq.com"
+      user2 = create :user, email: "2@qq.com"
+      create_list :item, 11, amount: 100, user: user1, tags_id: [create(:tag, user: user1).id]
+      create_list :item, 11, amount: 100, user: user2, tags_id: [create(:tag, user: user2).id]
       get "/api/v1/items"
       expect(response).to have_http_status 401
     end
@@ -27,11 +27,11 @@ RSpec.describe "Items", type: :request do
     end
     it "按时间筛选" do
       user1 = User.create email: "1@qq.com"
-      item1 = Item.create amount: 100, created_at: "2018-01-02", user_id: user1.id
-      item2 = Item.create amount: 100, created_at: "2018-01-02", user_id: user1.id
-      item3 = Item.create amount: 100, created_at: "2019-01-01", user_id: user1.id
+      item1 = Item.create amount: 100, happen_at: "2018-01-02", user_id: user1.id
+      item2 = Item.create amount: 100, happen_at: "2018-01-02", user_id: user1.id
+      item3 = Item.create amount: 100, happen_at: "2019-01-01", user_id: user1.id
 
-      get "/api/v1/items?created_after=2018-01-01&created_before=2018-01-03",
+      get "/api/v1/items?happen_after=2018-01-01&happen_before=2018-01-03",
         headers: user1.generate_auth_header
       expect(response).to have_http_status 200
       json = JSON.parse(response.body)
@@ -41,9 +41,9 @@ RSpec.describe "Items", type: :request do
     end
     it "按时间筛选（边界条件）" do
       user1 = User.create email: "1@qq.com"
-      item1 = Item.create amount: 100, created_at: "2018-01-01", user_id: user1.id
+      item1 = Item.create amount: 100, happen_at: "2018-01-01", user_id: user1.id
 
-      get "/api/v1/items?created_after=2018-01-01&created_before=2018-01-02",
+      get "/api/v1/items?happen_after=2018-01-01&happen_before=2018-01-02",
         headers: user1.generate_auth_header
       expect(response).to have_http_status 200
       json = JSON.parse(response.body)
@@ -142,11 +142,11 @@ RSpec.describe "Items", type: :request do
       Item.create! amount: 200, kind: "expenses", tags_id: [tag2.id, tag3.id], happen_at: "2018-06-18T00:00:00+08:00", user_id: user.id
       Item.create! amount: 300, kind: "expenses", tags_id: [tag3.id, tag1.id], happen_at: "2018-06-18T00:00:00+08:00", user_id: user.id
       get "/api/v1/items/summary", params: {
-                                 happened_after: "2018-01-01",
-                                 happened_before: "2019-01-01",
-                                 kind: "expenses",
-                                 group_by: "tag_id",
-                               }, headers: user.generate_auth_header
+                                     happened_after: "2018-01-01",
+                                     happened_before: "2019-01-01",
+                                     kind: "expenses",
+                                     group_by: "tag_id",
+                                   }, headers: user.generate_auth_header
       expect(response).to have_http_status 200
       json = JSON.parse response.body
       expect(json["groups"].size).to eq 3
