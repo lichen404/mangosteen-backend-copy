@@ -4,6 +4,13 @@ zh-CN:
       messages:
         invalid: 格式不正确
       models:
+        item:
+          attributes:
+            amount:
+              other_than: 金额不能为0
+            tag_ids:
+              blank: 标签不能为空
+
         validation_code:
           attributes:
             email:

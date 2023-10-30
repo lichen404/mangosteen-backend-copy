@@ -29,3 +29,4 @@
 /config/master.key
 /vendor/cache
 /config/credentials/production.key
+/doc/api
