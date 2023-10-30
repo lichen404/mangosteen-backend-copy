@@ -1,6 +1,6 @@
 # 注意修改 user 和 ip
 user=mangosteen
-ip=123.57.26.240
+ip=101.200.36.15
 
 time=$(date +'%Y%m%d-%H%M%S')
 cache_dir=tmp/deploy_cache
@@ -21,7 +21,10 @@ function title {
   echo 
 }
 
-
+title '运行测试用例'
+rspec || exit 1
+title '重新生成文档'
+bin/rails docs:generate || exit 2
 mkdir -p $cache_dir
 title '打包源代码'
 tar --exclude="tmp/cache/*" --exclude="tmp/deploy_cache/*" --exclude="vendor/*" -cz -f $dist *

@@ -1,4 +1,5 @@
 class Item < ApplicationRecord
+  paginates_per 25
   enum kind: { expenses: 1, income: 2 }
   validates :amount, presence: true
   validates :kind, presence: true
@@ -13,5 +14,9 @@ class Item < ApplicationRecord
     if self.tag_ids & all_tag_ids != self.tag_ids
       self.errors.add :tag_ids, "不属于当前用户"
     end
+  end
+
+  def tags
+    Tag.where(id: tag_ids)
   end
 end
