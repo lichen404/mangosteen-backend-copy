@@ -3,14 +3,25 @@ class Api::V1::ItemsController < ApplicationController
     current_user_id = request.env["current_user_id"]
     return head :unauthorized if current_user_id.nil?
     items = Item.where(user_id: current_user_id)
-      .where(happen_at: params[:happened_after]..params[:happened_before])
+      .where(happen_at: start_time..end_time)
     items = items.where(kind: params[:kind]) unless params[:kind].blank?
-    items = items.page(params[:page])
-    render json: { resources: items, pager: {
+    paged = items.page(params[:page])
+    render json: { resources: paged, pager: {
       page: params[:page] || 1,
       per_page: Item.default_per_page,
-      count: Item.where(user_id: current_user_id).count,
+      count: items.count,
     } }, methods: :tags
+  end
+
+  def start_time
+    # 如果 params[:happen_after] 存在就用它，否则就用 params[:happened_after]
+    params[:happened_after].presence || params[:happened_after]
+    datetime_with_zone(params[:happened_after].presence || params[:happened_after])
+  end
+
+  def end_time
+    params[:happened_before].presence || params[:happened_before]
+    datetime_with_zone(params[:happened_before].presence || params[:happened_before])
   end
 
   def create
@@ -27,7 +38,7 @@ class Api::V1::ItemsController < ApplicationController
     current_user_id = request.env["current_user_id"]
     return head :unauthorized if current_user_id.nil?
     items = Item.where({ user_id: current_user_id })
-      .where({ happen_at: params[:happen_after]..params[:happen_before] })
+      .where(happen_at: start_time..end_time)
     income_items = []
     expenses_items = []
     items.each { |item|
@@ -47,7 +58,7 @@ class Api::V1::ItemsController < ApplicationController
     items = Item
       .where(user_id: request.env["current_user_id"])
       .where(kind: params[:kind])
-      .where(happen_at: params[:happened_after]..params[:happened_before])
+      .where(happen_at: start_time..end_time)
     tags = []
     items.each do |item|
       tags += item.tags

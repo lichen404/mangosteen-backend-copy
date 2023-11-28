@@ -93,7 +93,7 @@ RSpec.describe "Items", type: :request do
       expect(json["resource"]["id"]).to be_an(Numeric)
       expect(json["resource"]["amount"]).to eq 99
       expect(json["resource"]["user_id"]).to eq user.id
-      expect(json["resource"]["happen_at"]).to eq "2017-12-31T16:00:00.000Z"
+      expect(json["resource"]["happen_at"]).to eq "2018-01-01T00:00:00.000+08:00"
       expect(json["resource"]["kind"]).to eq "income"
     end
     it "创建时 amount、tag_ids、happen_at 必填" do
@@ -108,7 +108,7 @@ RSpec.describe "Items", type: :request do
   end
   describe "获取余额" do
     it "未登录" do
-      get "/api/v1/items/balance?happen_after=2018-01-01&happen_before=2019-01-01"
+      get "/api/v1/items/balance?happened_after=2018-01-01&happened_before=2019-01-01"
       expect(response).to have_http_status 401
     end
     it "登录" do
@@ -120,7 +120,7 @@ RSpec.describe "Items", type: :request do
       create :item, user: user, kind: "income", amount: 100, happen_at: "2018-03-02T16:00:00.000Z", tag_ids: [tag.id]
       create :item, user: user, kind: "income", amount: 200, happen_at: "2018-03-02T16:00:00.000Z", tag_ids: [tag.id]
 
-      get "/api/v1/items/balance?happen_after=2018-03-02T15:00:00.000Z&happen_before=2018-03-02T17:00:00.000Z", headers: user.generate_auth_header
+      get "/api/v1/items/balance?happened_after=2018-03-02T15:00:00.000Z&happened_before=2018-03-02T17:00:00.000Z", headers: user.generate_auth_header
       expect(response).to have_http_status 200
       json = JSON.parse(response.body)
       expect(json["income"]).to eq 300
